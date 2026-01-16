@@ -5,6 +5,11 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import google.generativeai as genai
 
+# ==========================================
+# ⚠️ API KEY ANDA (JANGAN DISEBARLUASKAN)
+# ==========================================
+MY_API_KEY = "AIzaSyCz5BdfTRra0dWiS7nS666CUwfmyFlouhM"
+
 # -----------------------------------------------------------------------------
 # 1. KONFIGURASI HALAMAN & TEMA BIRU-PUTIH
 # -----------------------------------------------------------------------------
@@ -102,17 +107,20 @@ class SmartWeightAI:
         return int(prediksi_hari)
 
 # -----------------------------------------------------------------------------
-# 3. FUNGSI GEMINI AI (MODIFIKASI UTAMA)
+# 3. FUNGSI GEMINI AI
 # -----------------------------------------------------------------------------
 def tanya_gemini(api_key, user_obj, user_question, estimasi_hari):
     """
     Mengirim data user + pertanyaan ke Gemini untuk dianalisis
     """
     try:
+        # Konfigurasi API Key
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('AIzaSyCz5BdfTRra0dWiS7nS666CUwfmyFlouhM')
         
-        # PROMPT ENGINEERING: Memberi konteks data user ke AI
+        # Inisialisasi Model (Menggunakan gemini-pro, BUKAN api key)
+        model = genai.GenerativeModel('gemini-pro')
+        
+        # PROMPT ENGINEERING
         prompt_system = f"""
         Kamu adalah Asisten Kesehatan Pribadi bernama 'SmartWeight AI'.
         Tugasmu adalah menjawab pertanyaan pengguna dan memberikan saran diet berdasarkan data berikut:
@@ -149,8 +157,9 @@ def tanya_gemini(api_key, user_obj, user_question, estimasi_hari):
 # --- SIDEBAR ---
 with st.sidebar:
     st.title("Pengaturan")
-    # Input API Key
-    gemini_api_key = st.text_input("🔑 Masukkan Google Gemini API Key", type="password", help="Dapatkan di aistudio.google.com")
+    
+    # KITA TIDAK PERLU INPUT BOX LAGI KARENA SUDAH DI HARDCODE DI ATAS
+    st.success("✅ API Key Terhubung")
     
     st.markdown("---")
     st.header("Data Pengguna")
@@ -218,31 +227,28 @@ with tab2:
     st.subheader("Konsultasi Personal dengan AI")
     st.write("Tanyakan apa saja tentang diet, analisis data Anda, atau minta resep makanan!")
     
-    # Cek API Key
-    if not gemini_api_key:
-        st.warning("⚠️ Masukkan API Key Gemini di sidebar terlebih dahulu untuk menggunakan fitur Chatbot.")
-    else:
-        # Chat Interface
-        if "messages" not in st.session_state:
-            st.session_state.messages = []
+    # Chat Interface
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-        # Tampilkan chat history
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+    # Tampilkan chat history
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-        # Input Chat User
-        if prompt := st.chat_input("Contoh: Buatkan menu makan siang 500 kalori..."):
-            # 1. Tampilkan pesan user
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.markdown(prompt)
+    # Input Chat User
+    if prompt := st.chat_input("Contoh: Buatkan menu makan siang 500 kalori..."):
+        # 1. Tampilkan pesan user
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-            # 2. Proses dengan Gemini
-            with st.chat_message("assistant"):
-                with st.spinner("AI sedang menganalisis data Anda..."):
-                    response_text = tanya_gemini(gemini_api_key, user, prompt, hari)
-                    st.markdown(response_text)
-            
-            # 3. Simpan respon AI
-            st.session_state.messages.append({"role": "assistant", "content": response_text})
+        # 2. Proses dengan Gemini
+        with st.chat_message("assistant"):
+            with st.spinner("AI sedang menganalisis data Anda..."):
+                # MENGGUNAKAN API KEY YANG SUDAH DI-HARDCODE
+                response_text = tanya_gemini(MY_API_KEY, user, prompt, hari)
+                st.markdown(response_text)
+        
+        # 3. Simpan respon AI
+        st.session_state.messages.append({"role": "assistant", "content": response_text})
