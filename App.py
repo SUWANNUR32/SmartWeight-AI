@@ -110,7 +110,7 @@ def tanya_gemini(api_key, user_obj, user_question, estimasi_hari):
     """
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('AIzaSyCz5BdfTRra0dWiS7nS666CUwfmyFlouhM')
         
         # PROMPT ENGINEERING: Memberi konteks data user ke AI
         prompt_system = f"""
